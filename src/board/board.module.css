@@ -8,6 +8,7 @@
 .square {
   background: #fff;
   border: 1px solid #999;
+  float: left;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
@@ -17,6 +18,10 @@
   padding: 0;
   text-align: center;
   width: 10vh;
+}
+
+.square:focus {
+  outline: none;
 }
 
 .red-square {
