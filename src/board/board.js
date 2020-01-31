@@ -1,16 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./board.module.css";
+
+const isUndefined = value => typeof value === "undefined";
+
+const isDiagonalToPrevCoordinates = (row, col, prevRow, prevCol) => {
+  return (
+    !isUndefined(prevRow) &&
+    !isUndefined(prevCol) &&
+    row !== prevRow &&
+    col !== prevCol
+  );
+};
 
 export const calculateConnectedSquares = (
   board,
   row,
   col,
   gridSize,
-  visited = {}
+  visited = {},
+  prevRow,
+  prevCol
 ) => {
-  let coordinates = `${row},${col}`;
+  let coordinates = `${row}-${col}`;
 
-  if (board[row][col] === 1 && visited[coordinates] === undefined) {
+  if (
+    board[row][col] === 1 &&
+    visited[coordinates] === undefined &&
+    !isDiagonalToPrevCoordinates(row, col, prevRow, prevCol)
+  ) {
     let count = 1;
     visited[coordinates] = true;
     for (let newRow = row - 1; newRow <= row + 1; newRow++) {
@@ -26,7 +43,9 @@ export const calculateConnectedSquares = (
             newRow,
             newCol,
             gridSize,
-            visited
+            visited,
+            row,
+            col
           );
         }
       }
@@ -37,21 +56,83 @@ export const calculateConnectedSquares = (
   }
 };
 
+export const calculateConnectedCoordinates = (
+  board,
+  row,
+  col,
+  gridSize,
+  visited = {},
+  prevRow,
+  prevCol
+) => {
+  let coordinates = `${row}-${col}`;
+
+  if (
+    board[row][col] === 1 &&
+    visited[coordinates] === undefined &&
+    !isDiagonalToPrevCoordinates(row, col, prevRow, prevCol)
+  ) {
+    visited[coordinates] = true;
+    for (let newRow = row - 1; newRow <= row + 1; newRow++) {
+      for (let newCol = col - 1; newCol <= col + 1; newCol++) {
+        if (
+          newRow < gridSize &&
+          newRow >= 0 &&
+          newCol < gridSize &&
+          newCol >= 0
+        ) {
+          calculateConnectedCoordinates(
+            board,
+            newRow,
+            newCol,
+            gridSize,
+            visited,
+            row,
+            col
+          );
+        }
+      }
+    }
+    return visited;
+  } else {
+    return 0;
+  }
+};
+
 export const defaultBoard = [
   [0, 0, 0, 0, 1],
+  [1, 1, 0, 1, 0],
   [1, 1, 0, 0, 0],
-  [1, 1, 0, 1, 1],
   [0, 0, 0, 0, 0],
   [1, 1, 1, 0, 0]
 ];
 
+const generateMatrix = size => {
+  var arr = [];
+  for (let i = 0; i < size; i++) {
+    arr[i] = [];
+    for (let j = 0; j < size; j++) {
+      arr[i][j] = Math.round(Math.random());
+    }
+  }
+  return arr;
+};
+
 export const Board = () => {
-  const board = defaultBoard;
+  const [boardSize, setBoardSize] = useState(5);
+
+  const [board, setBoard] = useState(generateMatrix(boardSize));
   const [clickedSquare, setClickedSquare] = useState(null);
+  const [connectedCoordinates, setConnectedCoordinates] = useState([]);
   const [
     connectedSquaresCountOfClickedSquare,
     setConnectedSquaresCountOfClickedSquare
   ] = useState(null);
+
+  useEffect(() => {
+    const newBoard = generateMatrix(boardSize);
+    setBoard(newBoard);
+  }, [boardSize]);
 
   const renderLabel = (rowIndex, columnIndex) => {
     if (
@@ -65,24 +146,55 @@ export const Board = () => {
     return null;
   };
 
+  const getButtonStyles = (value, key) => {
+    // console.log("CONNECTED", connectedCoordinates);
+    if (connectedCoordinates.includes(key)) return styles["orange-square"];
+    if (value === 1) return styles["red-square"];
+    return styles.square;
+  };
+
   return (
     <div className={styles.container} data-testid="board">
+      <div class={styles.slidecontainer}>
+        <input
+          type="range"
+          min="4"
+          max="7"
+          value={boardSize}
+          class={styles.slider}
+          onChange={event => {
+            setBoardSize(event.target.value);
+          }}
+        />
+      </div>
       {board.map((row, rowIndex) => (
         <div className={styles["board-row"]} key={rowIndex}>
           {row.map((value, columnIndex) => (
             <button
               key={`${rowIndex}-${columnIndex}`}
               data-testid={`${rowIndex}-${columnIndex}`}
-              className={value === 1 ? styles["red-square"] : styles.square}
+              className={getButtonStyles(value, `${rowIndex}-${columnIndex}`)}
+              onMouseEnter={() =>
+                setConnectedCoordinates(
+                  Object.keys(
+                    calculateConnectedCoordinates(
+                      board,
+                      rowIndex,
+                      columnIndex,
+                      board.length
+                    )
+                  )
+                )
+              }
+              onMouseLeave={() => setConnectedCoordinates([])}
               onClick={() => {
-                const connectedComponentCount = calculateConnectedSquares(
-                  board,
-                  rowIndex,
-                  columnIndex,
-                  board.length
-                );
                 setConnectedSquaresCountOfClickedSquare(
-                  connectedComponentCount
+                  calculateConnectedSquares(
+                    board,
+                    rowIndex,
+                    columnIndex,
+                    board.length
+                  )
                 );
                 setClickedSquare({ rowIndex, columnIndex });
               }}
