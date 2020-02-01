@@ -158,6 +158,24 @@ export const Board = () => {
 
   return (
     <div className={styles.container} data-testid="board">
+      <div className={styles.tooltip}>
+        React Grid Project
+        <span class={styles.tooltiptext}>
+          When you click on a filled square, count the number of filled squares
+          connected to this square, and all other filled squares connected to
+          those squares. Write this number into the clicked square. Squares are
+          connected if they are touching horizontally or vertically, NOT
+          diagonal. Numbers in other coloured squares should be cleared when a
+          new square is clicked. Clicking on a non-filled square should do
+          nothing. While hovering over a filled square, temporarily change the
+          colour of all connected squares. Allow the grid to be randomly
+          generated with size NxN elements with 0s and 1s in. Add a slider to
+          vary N. Add a colour picker to allow the user to change the hover and
+          background colours of the grid.
+        </span>
+      </div>
+      <br />
+      <br />
       <div className={styles.slidecontainer}>
         {`Board Size: ${boardSize}`}
         <input
@@ -174,6 +192,7 @@ export const Board = () => {
           }}
         />
       </div>
+      <br />
       {board.map((row, rowIndex) => (
         <div className={styles["board-row"]} key={rowIndex}>
           {row.map((value, columnIndex) => (
@@ -217,16 +236,19 @@ export const Board = () => {
           ))}
         </div>
       ))}
+      <br />
+      <br />
       <div>
-        Pick resting background color of connected squares
+        {"Pick resting background color of connected squares: "}
         <input
           type="color"
           value={activeSquareBackgroundColor}
           onChange={event => setActiveSquareBackgroundColor(event.target.value)}
         />
       </div>
+      <br />
       <div>
-        Pick active background color of connected squares
+        {"Pick active background color of connected squares: "}
         <input
           type="color"
           value={activeSquareHoverBackgroundColor}
