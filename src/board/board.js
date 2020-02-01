@@ -129,12 +129,12 @@ export const Board = () => {
   ] = useState(null);
   const DEFAULT_SQUARE_BACKGROUND_COLOR = "#ffffff";
   const [
-    activeSquareBackgroundColor,
-    setActiveSquareBackgroundColor
+    connectedSquareBackgroundColor,
+    setConnectedSquareBackgroundColor
   ] = useState("#ff0000");
   const [
-    activeSquareHoverBackgroundColor,
-    setActiveSquareHoverBackgroundColor
+    connectedSquareHoverBackgroundColor,
+    setConnectedSquareHoverBackgroundColor
   ] = useState("#ffa500");
 
   const renderLabel = (rowIndex, columnIndex) => {
@@ -151,16 +151,16 @@ export const Board = () => {
 
   const getButtonBackgroundColor = (value, key) => {
     if (connectedCoordinates.includes(key))
-      return activeSquareHoverBackgroundColor;
-    if (value === 1) return activeSquareBackgroundColor;
+      return connectedSquareHoverBackgroundColor;
+    if (value === 1) return connectedSquareBackgroundColor;
     return DEFAULT_SQUARE_BACKGROUND_COLOR;
   };
 
   return (
-    <div className={styles.container} data-testid="board">
+    <div className={styles.container}>
       <div className={styles.tooltip}>
         React Grid Project
-        <span class={styles.tooltiptext}>
+        <span className={styles.tooltiptext}>
           When you click on a filled square, count the number of filled squares
           connected to this square, and all other filled squares connected to
           those squares. Write this number into the clicked square. Squares are
@@ -182,6 +182,7 @@ export const Board = () => {
           type="range"
           min="4"
           max="7"
+          data-testid="board-size-slider"
           value={boardSize}
           className={styles.slider}
           onChange={event => {
@@ -242,8 +243,11 @@ export const Board = () => {
         {"Pick resting background color of connected squares: "}
         <input
           type="color"
-          value={activeSquareBackgroundColor}
-          onChange={event => setActiveSquareBackgroundColor(event.target.value)}
+          data-testid="connected-color-input"
+          value={connectedSquareBackgroundColor}
+          onChange={event =>
+            setConnectedSquareBackgroundColor(event.target.value)
+          }
         />
       </div>
       <br />
@@ -251,9 +255,10 @@ export const Board = () => {
         {"Pick active background color of connected squares: "}
         <input
           type="color"
-          value={activeSquareHoverBackgroundColor}
+          data-testid="hover-color-input"
+          value={connectedSquareHoverBackgroundColor}
           onChange={event =>
-            setActiveSquareHoverBackgroundColor(event.target.value)
+            setConnectedSquareHoverBackgroundColor(event.target.value)
           }
         />
       </div>
