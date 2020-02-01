@@ -1,23 +1,6 @@
 import React from "react";
 import { render, fireEvent, waitForElement } from "@testing-library/react";
-import Board, { defaultBoard, calculateConnectedSquares } from "./board";
-
-describe("calculateConnectedSquares", () => {
-  it("should calculate correct amount of connected squares for a given coordinate", () => {
-    expect(
-      calculateConnectedSquares(defaultBoard, 1, 1, defaultBoard.length)
-    ).toBe(4);
-    expect(
-      calculateConnectedSquares(defaultBoard, 4, 0, defaultBoard.length)
-    ).toBe(3);
-    expect(
-      calculateConnectedSquares(defaultBoard, 2, 4, defaultBoard.length)
-    ).toBe(2);
-    expect(
-      calculateConnectedSquares(defaultBoard, 0, 4, defaultBoard.length)
-    ).toBe(1);
-  });
-});
+import Board from "./board";
 
 describe("Board", () => {
   let rendered;
