@@ -24,15 +24,6 @@
   outline: none;
 }
 
-.red-square {
-  composes: square;
-  background: red;
-}
-.orange-square {
-  composes: square;
-  background: orange;
-}
-
 body {
   font: 14px "Century Gothic", Futura, sans-serif;
   margin: 20px;

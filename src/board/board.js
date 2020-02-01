@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styles from "./board.module.css";
 
 const isUndefined = value => typeof value === "undefined";
@@ -101,8 +101,8 @@ export const calculateConnectedCoordinates = (
 
 export const defaultBoard = [
   [0, 0, 0, 0, 1],
-  [1, 1, 0, 1, 0],
   [1, 1, 0, 0, 0],
+  [1, 1, 0, 1, 1],
   [0, 0, 0, 0, 0],
   [1, 1, 1, 0, 0]
 ];
@@ -120,19 +120,22 @@ const generateMatrix = size => {
 
 export const Board = () => {
   const [boardSize, setBoardSize] = useState(5);
-
-  const [board, setBoard] = useState(generateMatrix(boardSize));
+  const [board, setBoard] = useState(defaultBoard);
   const [clickedSquare, setClickedSquare] = useState(null);
   const [connectedCoordinates, setConnectedCoordinates] = useState([]);
   const [
     connectedSquaresCountOfClickedSquare,
     setConnectedSquaresCountOfClickedSquare
   ] = useState(null);
-
-  useEffect(() => {
-    const newBoard = generateMatrix(boardSize);
-    setBoard(newBoard);
-  }, [boardSize]);
+  const DEFAULT_SQUARE_BACKGROUND_COLOR = "#ffffff";
+  const [
+    activeSquareBackgroundColor,
+    setActiveSquareBackgroundColor
+  ] = useState("#ff0000");
+  const [
+    activeSquareHoverBackgroundColor,
+    setActiveSquareHoverBackgroundColor
+  ] = useState("#ffa500");
 
   const renderLabel = (rowIndex, columnIndex) => {
     if (
@@ -146,24 +149,28 @@ export const Board = () => {
     return null;
   };
 
-  const getButtonStyles = (value, key) => {
-    // console.log("CONNECTED", connectedCoordinates);
-    if (connectedCoordinates.includes(key)) return styles["orange-square"];
-    if (value === 1) return styles["red-square"];
-    return styles.square;
+  const getButtonBackgroundColor = (value, key) => {
+    if (connectedCoordinates.includes(key))
+      return activeSquareHoverBackgroundColor;
+    if (value === 1) return activeSquareBackgroundColor;
+    return DEFAULT_SQUARE_BACKGROUND_COLOR;
   };
 
   return (
     <div className={styles.container} data-testid="board">
-      <div class={styles.slidecontainer}>
+      <div className={styles.slidecontainer}>
+        {`Board Size: ${boardSize}`}
         <input
           type="range"
           min="4"
           max="7"
           value={boardSize}
-          class={styles.slider}
+          className={styles.slider}
           onChange={event => {
             setBoardSize(event.target.value);
+            setBoard(generateMatrix(event.target.value));
+            setClickedSquare(null);
+            setConnectedCoordinates([]);
           }}
         />
       </div>
@@ -173,7 +180,13 @@ export const Board = () => {
             <button
               key={`${rowIndex}-${columnIndex}`}
               data-testid={`${rowIndex}-${columnIndex}`}
-              className={getButtonStyles(value, `${rowIndex}-${columnIndex}`)}
+              className={styles.square}
+              style={{
+                background: getButtonBackgroundColor(
+                  value,
+                  `${rowIndex}-${columnIndex}`
+                )
+              }}
               onMouseEnter={() =>
                 setConnectedCoordinates(
                   Object.keys(
@@ -204,6 +217,24 @@ export const Board = () => {
           ))}
         </div>
       ))}
+      <div>
+        Pick resting background color of connected squares
+        <input
+          type="color"
+          value={activeSquareBackgroundColor}
+          onChange={event => setActiveSquareBackgroundColor(event.target.value)}
+        />
+      </div>
+      <div>
+        Pick active background color of connected squares
+        <input
+          type="color"
+          value={activeSquareHoverBackgroundColor}
+          onChange={event =>
+            setActiveSquareHoverBackgroundColor(event.target.value)
+          }
+        />
+      </div>
     </div>
   );
 };
